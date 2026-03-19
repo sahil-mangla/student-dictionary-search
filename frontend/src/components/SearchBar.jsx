@@ -27,7 +27,12 @@ const SearchBar = ({ onSelectStudent }) => {
     // Only fetch if 3 or more characters
     if (debouncedQuery.trim().length >= 3) {
       setLoading(true);
-      fetch(`http://localhost:5001/api/students/search?q=${encodeURIComponent(debouncedQuery)}`)
+      
+      const apiUrl = import.meta.env.MODE === 'production' 
+        ? `/api/students/search?q=${encodeURIComponent(debouncedQuery)}`
+        : `http://localhost:5001/api/students/search?q=${encodeURIComponent(debouncedQuery)}`;
+        
+      fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
           setResults(data);

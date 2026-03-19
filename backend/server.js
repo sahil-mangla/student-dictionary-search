@@ -9,15 +9,8 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-// Load student data from local JSON file
-let students = [];
-try {
-  const dataPath = path.join(__dirname, 'students.json');
-  const fileData = fs.readFileSync(dataPath, 'utf8');
-  students = JSON.parse(fileData);
-} catch (error) {
-  console.error("Error reading students.json:", error);
-}
+// Load student data from local JSON file using require so Vercel bundles it safely
+const students = require('./students.json');
 
 // Helper to escape regex special characters
 function escapeRegExp(string) {
@@ -55,6 +48,12 @@ app.get('/api/students/search', (req, res) => {
   }, 200); 
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Export the Express app for Vercel Serverless Functions
+module.exports = app;
+
+// Only listen on a port if not running in a Vercel Serverless environment
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
